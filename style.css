@@ -1,0 +1,8 @@
+* {
+  margin: 0;
+}
+#canvas {
+  background: white;
+  position: relative;
+  display: block;
+}
