@@ -4,6 +4,11 @@ const e = selector => document.querySelector(selector);
 const canvas = e("#canvas");
 const ctx = canvas.getContext("2d");
 let eraserEnabled = false;
+let drawing = false;
+let lastPoint = {
+  x: undefined,
+  y: undefined
+};
 
 const setCanvasSize = () => {
   const pageWidth = document.documentElement.clientWidth;
@@ -35,11 +40,6 @@ const drawLine = (x1, y1, x2, y2) => {
 };
 
 const listenToMouse = () => {
-  let drawing = false;
-  let lastPoint = {
-    x: undefined,
-    y: undefined
-  };
   canvas.addEventListener("mousedown", e => {
     drawing = true;
     const x = e.clientX;
@@ -70,6 +70,43 @@ const listenToMouse = () => {
     }
   });
   canvas.addEventListener("mouseup", e => {
+    drawing = false;
+  });
+};
+
+const listenToTouch = () => {
+  canvas.addEventListener("touchstart", e => {
+    log("touch start");
+    drawing = true;
+    const x = e.touches[0].clientX;
+    const y = e.touches[0].clientY;
+    lastPoint.x = x;
+    lastPoint.y = y;
+    const radius = 2;
+    if (eraserEnabled) {
+      ctx.clearRect(x - 5, y - 5, 10, 10);
+    } else {
+      drawCircle(x, y, radius);
+    }
+  });
+  canvas.addEventListener("touchmove", e => {
+    if (drawing !== true) {
+      return;
+    }
+    const x = e.touches[0].clientX;
+    const y = e.touches[0].clientY;
+    if (eraserEnabled) {
+      ctx.clearRect(x - 5, y - 5, 10, 10);
+    } else {
+      const newPoint = { x, y };
+      drawLine(lastPoint.x, lastPoint.y, newPoint.x, newPoint.y);
+      lastPoint = newPoint;
+      const radius = 2;
+      drawCircle(x, y, radius);
+    }
+  });
+  canvas.addEventListener("touchend", e => {
+    log("touch end");
     drawing = false;
   });
 };
@@ -111,7 +148,12 @@ const __main = () => {
   // 设置画笔颜色 (调整 canvas 画布会清空上下文的设置，比如颜色)
   setPencilColor("red");
   // 监听事件
-  listenToMouse();
+  if (document.body.ontouchstart === undefined) {
+    listenToMouse();
+  } else {
+    listenToTouch();
+  }
+
   changeButton();
 };
 __main();
