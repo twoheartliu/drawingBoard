@@ -119,8 +119,14 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   return newRequire;
 })({"main.js":[function(require,module,exports) {
 var log = console.log.bind(console);
-var canvas = document.getElementById("canvas");
+
+var e = function e(selector) {
+  return document.querySelector(selector);
+};
+
+var canvas = e("#canvas");
 var ctx = canvas.getContext("2d");
+var eraserEnabled = false;
 
 var setCanvasSize = function setCanvasSize() {
   var pageWidth = document.documentElement.clientWidth;
@@ -129,7 +135,8 @@ var setCanvasSize = function setCanvasSize() {
   canvas.height = pageHeight;
 };
 
-var canvasSize = function canvasSize() {
+var autoCanvasSize = function autoCanvasSize() {
+  setCanvasSize();
   window.addEventListener("resize", function () {
     setCanvasSize();
   });
@@ -150,13 +157,12 @@ var drawLine = function drawLine(x1, y1, x2, y2) {
   ctx.closePath();
 };
 
-var drawing = false;
-var lastPoint = {
-  x: undefined,
-  y: undefined
-};
-
-var mouseDown = function mouseDown() {
+var listenToMouse = function listenToMouse() {
+  var drawing = false;
+  var lastPoint = {
+    x: undefined,
+    y: undefined
+  };
   canvas.addEventListener("mousedown", function (e) {
     drawing = true;
     var x = e.clientX;
@@ -164,15 +170,24 @@ var mouseDown = function mouseDown() {
     lastPoint.x = x;
     lastPoint.y = y;
     var radius = 2;
-    drawCircle(x, y, radius);
-  });
-};
 
-var mouseMove = function mouseMove() {
+    if (eraserEnabled) {
+      ctx.clearRect(x - 5, y - 5, 10, 10);
+    } else {
+      drawCircle(x, y, radius);
+    }
+  });
   canvas.addEventListener("mousemove", function (e) {
-    if (drawing === true) {
-      var x = e.clientX;
-      var y = e.clientY;
+    if (drawing !== true) {
+      return;
+    }
+
+    var x = e.clientX;
+    var y = e.clientY;
+
+    if (eraserEnabled) {
+      ctx.clearRect(x - 5, y - 5, 10, 10);
+    } else {
       var newPoint = {
         x: x,
         y: y
@@ -183,13 +198,39 @@ var mouseMove = function mouseMove() {
       drawCircle(x, y, radius);
     }
   });
-};
-
-var mouseUp = function mouseUp() {
   canvas.addEventListener("mouseup", function (e) {
     drawing = false;
   });
 };
+
+var changeButton = function changeButton() {
+  var eraser = e(".eraser");
+  var brush = e(".brush");
+  eraser.addEventListener("click", function () {
+    log("eraser clicked");
+    eraserEnabled = !eraserEnabled;
+    log("eraser", eraserEnabled);
+    var old = e(".active");
+
+    if (old) {
+      old.classList.remove("active");
+    }
+
+    brush.classList.add("active");
+  });
+  brush.addEventListener("click", function () {
+    eraserEnabled = !eraserEnabled;
+    var old = e(".active");
+
+    if (old) {
+      old.classList.remove("active");
+    }
+
+    eraser.classList.add("active");
+  });
+}; // const listenToEraser = () => {};
+// const listenToBrush = () => {};
+
 
 var setPencilColor = function setPencilColor(color) {
   ctx.strokeStyle = color;
@@ -198,14 +239,12 @@ var setPencilColor = function setPencilColor(color) {
 
 var __main = function __main() {
   // 设置画布大小
-  setCanvasSize(); // 设置画笔颜色
+  autoCanvasSize(); // 设置画笔颜色 (调整 canvas 画布会清空上下文的设置，比如颜色)
 
-  setPencilColor('red'); // 监听事件
+  setPencilColor("red"); // 监听事件
 
-  canvasSize();
-  mouseDown();
-  mouseMove();
-  mouseUp();
+  listenToMouse();
+  changeButton();
 };
 
 __main();

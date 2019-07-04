@@ -12,10 +12,20 @@ body {
   display: block;
 }
 
-#eraser {
+.actions {
   position: fixed;
   bottom: 0;
   left: 0;
+}
+
+.actions .brush,
+.actions .eraser
+ {
+  display: none;
+}
+
+.active {
+  display: inline-block !important;
 }
 
 /*# sourceMappingURL=/style.e308ff8e.css.map */

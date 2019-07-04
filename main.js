@@ -1,7 +1,9 @@
 const log = console.log.bind(console);
 
-const canvas = document.getElementById("canvas");
+const e = selector => document.querySelector(selector);
+const canvas = e("#canvas");
 const ctx = canvas.getContext("2d");
+let eraserEnabled = false;
 
 const setCanvasSize = () => {
   const pageWidth = document.documentElement.clientWidth;
@@ -10,7 +12,8 @@ const setCanvasSize = () => {
   canvas.height = pageHeight;
 };
 
-const canvasSize = () => {
+const autoCanvasSize = () => {
+  setCanvasSize();
   window.addEventListener("resize", () => {
     setCanvasSize();
   });
@@ -31,12 +34,12 @@ const drawLine = (x1, y1, x2, y2) => {
   ctx.closePath();
 };
 
-let drawing = false;
-let lastPoint = {
-  x: undefined,
-  y: undefined
-};
-const mouseDown = () => {
+const listenToMouse = () => {
+  let drawing = false;
+  let lastPoint = {
+    x: undefined,
+    y: undefined
+  };
   canvas.addEventListener("mousedown", e => {
     drawing = true;
     const x = e.clientX;
@@ -44,15 +47,21 @@ const mouseDown = () => {
     lastPoint.x = x;
     lastPoint.y = y;
     const radius = 2;
-    drawCircle(x, y, radius);
+    if (eraserEnabled) {
+      ctx.clearRect(x - 5, y - 5, 10, 10);
+    } else {
+      drawCircle(x, y, radius);
+    }
   });
-};
-
-const mouseMove = () => {
   canvas.addEventListener("mousemove", e => {
-    if (drawing === true) {
-      const x = e.clientX;
-      const y = e.clientY;
+    if (drawing !== true) {
+      return;
+    }
+    const x = e.clientX;
+    const y = e.clientY;
+    if (eraserEnabled) {
+      ctx.clearRect(x - 5, y - 5, 10, 10);
+    } else {
       const newPoint = { x, y };
       drawLine(lastPoint.x, lastPoint.y, newPoint.x, newPoint.y);
       lastPoint = newPoint;
@@ -60,30 +69,49 @@ const mouseMove = () => {
       drawCircle(x, y, radius);
     }
   });
-};
-
-const mouseUp = () => {
   canvas.addEventListener("mouseup", e => {
     drawing = false;
   });
 };
 
-const setPencilColor = (color) => {
+const changeButton = () => {
+  let eraser = e(".eraser");
+  let brush = e(".brush");
+  eraser.addEventListener("click", () => {
+    log("eraser clicked");
+    eraserEnabled = !eraserEnabled;
+    log("eraser", eraserEnabled);
+    let old = e(".active");
+    if (old) {
+      old.classList.remove("active");
+    }
+    brush.classList.add("active");
+  });
+  brush.addEventListener("click", () => {
+    eraserEnabled = !eraserEnabled;
+    let old = e(".active");
+    if (old) {
+      old.classList.remove("active");
+    }
+    eraser.classList.add("active");
+  });
+};
+// const listenToEraser = () => {};
+
+// const listenToBrush = () => {};
+
+const setPencilColor = color => {
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
-}
+};
 
 const __main = () => {
   // 设置画布大小
-  setCanvasSize();
-  // 设置画笔颜色
-  setPencilColor('red')
+  autoCanvasSize();
+  // 设置画笔颜色 (调整 canvas 画布会清空上下文的设置，比如颜色)
+  setPencilColor("red");
   // 监听事件
-  canvasSize();
-  mouseDown();
-  mouseMove();
-  mouseUp();
+  listenToMouse();
+  changeButton();
 };
 __main();
-
-  
