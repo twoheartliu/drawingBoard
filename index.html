@@ -7,13 +7,20 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>画板</title>
   <link rel="stylesheet" href="./style.css">
+  <script src="//at.alicdn.com/t/font_1279546_j5oy8jtz9et.js"></script>
 </head>
 
 <body>
   <canvas id="canvas" width="500" height="500"></canvas>
   <div class="actions">
-    <button class="eraser active">切换到橡皮擦</button>
-    <button class="brush">切换到画笔</button>
+    <svg class="icon brush active" aria-hidden="true">
+      <use xlink:href="#icon-pen"></use>
+    </svg>
+    <svg class="icon eraser" aria-hidden="true">
+      <use xlink:href="#icon-eraser-copy"></use>
+    </svg>
+    <!-- <button class="eraser active">切换到橡皮擦</button>
+    <button class="brush">切换到画笔</button> -->
   </div>
   <script src="./main.js"></script>
 </body>

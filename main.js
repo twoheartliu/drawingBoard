@@ -122,15 +122,16 @@ const changeButton = () => {
     if (old) {
       old.classList.remove("active");
     }
-    brush.classList.add("active");
+    eraser.classList.add("active");
   });
   brush.addEventListener("click", () => {
-    eraserEnabled = !eraserEnabled;
+    drawing = true;
+    log(drawing)
     let old = e(".active");
     if (old) {
       old.classList.remove("active");
     }
-    eraser.classList.add("active");
+    brush.classList.add("active");
   });
 };
 // const listenToEraser = () => {};

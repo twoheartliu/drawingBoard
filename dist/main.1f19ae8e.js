@@ -259,17 +259,18 @@ var changeButton = function changeButton() {
       old.classList.remove("active");
     }
 
-    brush.classList.add("active");
+    eraser.classList.add("active");
   });
   brush.addEventListener("click", function () {
-    eraserEnabled = !eraserEnabled;
+    drawing = true;
+    log(drawing);
     var old = e(".active");
 
     if (old) {
       old.classList.remove("active");
     }
 
-    eraser.classList.add("active");
+    brush.classList.add("active");
   });
 }; // const listenToEraser = () => {};
 // const listenToBrush = () => {};
@@ -324,7 +325,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57032" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63427" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
