@@ -115,9 +115,7 @@ const changeButton = () => {
   let eraser = e(".eraser");
   let brush = e(".brush");
   eraser.addEventListener("click", () => {
-    log("eraser clicked");
-    eraserEnabled = !eraserEnabled;
-    log("eraser", eraserEnabled);
+    eraserEnabled = true;
     let old = e(".active");
     if (old) {
       old.classList.remove("active");
@@ -125,7 +123,7 @@ const changeButton = () => {
     eraser.classList.add("active");
   });
   brush.addEventListener("click", () => {
-    drawing = true;
+    eraserEnabled = false;
     log(drawing)
     let old = e(".active");
     if (old) {
@@ -134,9 +132,6 @@ const changeButton = () => {
     brush.classList.add("active");
   });
 };
-// const listenToEraser = () => {};
-
-// const listenToBrush = () => {};
 
 const setPencilColor = color => {
   ctx.strokeStyle = color;
