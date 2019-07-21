@@ -39,7 +39,6 @@ body {
   background: white;
   position: relative;
   display: block;
-  border: 1px solid red;
 }
 
 .actions {
@@ -94,5 +93,33 @@ body {
 }
 
 .colors>li.active {
+  transform: scale(1.2);
+}
+
+.lines{
+  position: fixed;
+  top: 200px;
+  left: 18px;
+}
+
+.lines > li {
+  width: 20px;
+  height: 20px;
+  margin: 8px 0;
+  transition: all 0.3s;
+  /* border: 1px solid red; */
+}
+
+.lines > li.thin {
+  border-top: 3px solid black;
+  border-radius: 2px;
+}
+
+.lines > li.thick {
+  border-top: 8px solid black;
+  border-radius: 2px;
+}
+
+.lines > li.checked {
   transform: scale(1.2);
 }

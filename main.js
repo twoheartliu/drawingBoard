@@ -7,6 +7,16 @@ let lastPoint = {
   y: undefined
 };
 
+const stopTrailing = () => {
+  document.body.addEventListener(
+    "touchmove",
+    function(e) {
+      e.preventDefault(); //阻止默认的处理方式(阻止下拉滑动的效果)
+    },
+    { passive: false }
+  );
+};
+
 const setCanvasSize = () => {
   const pageWidth = document.documentElement.clientWidth;
   const pageHeight = document.documentElement.clientHeight;
@@ -28,7 +38,6 @@ const drawCircle = (x, y, radius) => {
 };
 
 const drawLine = (x1, y1, x2, y2) => {
-  ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.moveTo(x1, y1);
   ctx.lineTo(x2, y2);
@@ -43,11 +52,11 @@ const listenToMouse = () => {
     const y = e.clientY;
     lastPoint.x = x;
     lastPoint.y = y;
-    const radius = 2;
+    // const radius = 5;
     if (eraserEnabled) {
       ctx.clearRect(x - 5, y - 5, 10, 10);
     } else {
-      drawCircle(x, y, radius);
+      drawCircle(x, y, ctx.lineWidth / 2);
     }
   });
   bindEvent(canvas, "mousemove", e => {
@@ -62,8 +71,8 @@ const listenToMouse = () => {
       const newPoint = { x, y };
       drawLine(lastPoint.x, lastPoint.y, newPoint.x, newPoint.y);
       lastPoint = newPoint;
-      const radius = 2;
-      drawCircle(x, y, radius);
+      const radius = 5;
+      drawCircle(x, y, ctx.lineWidth / 2);
     }
   });
   bindEvent(canvas, "mouseup", e => {
@@ -132,7 +141,6 @@ const changeButton = () => {
 
 const setPencilColor = () => {
   const list = es(".colors-cell");
-
   bindAll(list, "click", event => {
     const old = e("li.active");
     log(event.target);
@@ -148,27 +156,38 @@ const setPencilColor = () => {
   });
 };
 
+const setLineWidth = () => {
+  ctx.lineWidth = "3";
+  const lines = es(".lines-cell");
+  bindAll(lines, "click", event => {
+    const old = e("li.checked");
+    log(event.target);
+    const self = event.target;
+    const width = self.dataset.width;
+    if (old) {
+      old.classList.remove("checked");
+    }
+    self.classList.add("checked");
+    log("width", width);
+    ctx.lineWidth = width;
+  });
+};
 const __main = () => {
+  // 阻止移动端浏览器橡皮筋效果
+  stopTrailing();
   // 设置画布大小
   autoCanvasSize();
-  // 设置画笔颜色 (调整 canvas 画布会清空上下文的设置，比如颜色)
-  setPencilColor();
   // 监听事件
   if (document.body.ontouchstart === undefined) {
     listenToMouse();
   } else {
     listenToTouch();
   }
-
+  // 设置画笔颜色 (调整 canvas 画布会清空上下文的设置，比如颜色)
+  setPencilColor();
+  // 设置画笔粗细
+  setLineWidth();
+  // 切换按钮
   changeButton();
-
-  // 阻止移动端浏览器橡皮筋效果
-  document.body.addEventListener(
-    "touchmove",
-    function(e) {
-      e.preventDefault(); //阻止默认的处理方式(阻止下拉滑动的效果)
-    },
-    { passive: false }
-  );
 };
 __main();
