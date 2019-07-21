@@ -22,6 +22,8 @@ const setCanvasSize = () => {
   const pageHeight = document.documentElement.clientHeight;
   canvas.width = pageWidth;
   canvas.height = pageHeight;
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 };
 
 const autoCanvasSize = () => {
@@ -118,8 +120,10 @@ const listenToTouch = () => {
 };
 
 const changeButton = () => {
-  let eraser = e(".eraser");
-  let brush = e(".brush");
+  const eraser = e(".eraser");
+  const brush = e(".brush");
+  const clear = e(".delete");
+  const download = e(".download");
   bindEvent(eraser, "click", () => {
     eraserEnabled = true;
     let old = e(".active");
@@ -137,9 +141,23 @@ const changeButton = () => {
     }
     brush.classList.add("active");
   });
+  bindEvent(clear, "click", () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
+  bindEvent(download, "click", () => {
+    const data = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.href = data;
+    a.link = "_blank";
+    a.download = "画板";
+    a.click();
+  });
 };
 
 const setPencilColor = () => {
+  ctx.strokeStyle = "black";
+  ctx.fillStyle = "black";
   const list = es(".colors-cell");
   bindAll(list, "click", event => {
     const old = e("li.active");
