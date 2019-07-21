@@ -1,6 +1,3 @@
-const log = console.log.bind(console);
-
-const e = selector => document.querySelector(selector);
 const canvas = e("#canvas");
 const ctx = canvas.getContext("2d");
 let eraserEnabled = false;
@@ -19,7 +16,7 @@ const setCanvasSize = () => {
 
 const autoCanvasSize = () => {
   setCanvasSize();
-  window.addEventListener("resize", () => {
+  bindEvent(window, "resize", () => {
     setCanvasSize();
   });
 };
@@ -40,7 +37,7 @@ const drawLine = (x1, y1, x2, y2) => {
 };
 
 const listenToMouse = () => {
-  canvas.addEventListener("mousedown", e => {
+  bindEvent(canvas, "mousedown", e => {
     drawing = true;
     const x = e.clientX;
     const y = e.clientY;
@@ -53,7 +50,7 @@ const listenToMouse = () => {
       drawCircle(x, y, radius);
     }
   });
-  canvas.addEventListener("mousemove", e => {
+  bindEvent(canvas, "mousemove", e => {
     if (drawing !== true) {
       return;
     }
@@ -69,13 +66,13 @@ const listenToMouse = () => {
       drawCircle(x, y, radius);
     }
   });
-  canvas.addEventListener("mouseup", e => {
+  bindEvent(canvas, "mouseup", e => {
     drawing = false;
   });
 };
 
 const listenToTouch = () => {
-  canvas.addEventListener("touchstart", e => {
+  bindEvent(canvas, "touchstart", e => {
     log("touch start");
     drawing = true;
     const x = e.touches[0].clientX;
@@ -89,7 +86,7 @@ const listenToTouch = () => {
       drawCircle(x, y, radius);
     }
   });
-  canvas.addEventListener("touchmove", e => {
+  bindEvent(canvas, "touchmove", e => {
     if (drawing !== true) {
       return;
     }
@@ -105,7 +102,7 @@ const listenToTouch = () => {
       drawCircle(x, y, radius);
     }
   });
-  canvas.addEventListener("touchend", e => {
+  bindEvent(canvas, "touchend", e => {
     log("touch end");
     drawing = false;
   });
@@ -114,7 +111,7 @@ const listenToTouch = () => {
 const changeButton = () => {
   let eraser = e(".eraser");
   let brush = e(".brush");
-  eraser.addEventListener("click", () => {
+  bindEvent(eraser, "click", () => {
     eraserEnabled = true;
     let old = e(".active");
     if (old) {
@@ -122,9 +119,9 @@ const changeButton = () => {
     }
     eraser.classList.add("active");
   });
-  brush.addEventListener("click", () => {
+  bindEvent(brush, "click", () => {
     eraserEnabled = false;
-    log(drawing)
+    log(drawing);
     let old = e(".active");
     if (old) {
       old.classList.remove("active");
@@ -133,16 +130,29 @@ const changeButton = () => {
   });
 };
 
-const setPencilColor = color => {
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color;
+const setPencilColor = () => {
+  const list = es(".colors-cell");
+
+  bindAll(list, "click", event => {
+    const old = e("li.active");
+    log(event.target);
+    const self = event.target;
+    const color = self.dataset.color;
+    log("color", color);
+    if (old) {
+      old.classList.remove("active");
+    }
+    self.classList.add("active");
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+  });
 };
 
 const __main = () => {
   // 设置画布大小
   autoCanvasSize();
   // 设置画笔颜色 (调整 canvas 画布会清空上下文的设置，比如颜色)
-  setPencilColor("red");
+  setPencilColor();
   // 监听事件
   if (document.body.ontouchstart === undefined) {
     listenToMouse();
@@ -151,5 +161,14 @@ const __main = () => {
   }
 
   changeButton();
+
+  // 阻止移动端浏览器橡皮筋效果
+  document.body.addEventListener(
+    "touchmove",
+    function(e) {
+      e.preventDefault(); //阻止默认的处理方式(阻止下拉滑动的效果)
+    },
+    { passive: false }
+  );
 };
 __main();
